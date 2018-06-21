@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dsnap - Charts</title>
+    <style>
+        #xaxis .domain {
+            fill:none;
+            stroke:#000;
+        }
+        #xaxis text, #yaxis text {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+</div>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script>
+    var categories= ['','Accessories', 'Audiophile', 'Camera & Photo', 'Cell Phones', 'Computers','eBook Readers','Gadgets','GPS & Navigation','Home Audio','Office Electronics','Portable Audio','Portable Video'];
+    var colarArray = ['green','blue','#da8709','black'];
+    var dollars = [50,200,100,200,100,100,200,100,50,100,100,100];
+    var areas =    [150,200,80,50,50,70,40,160,100,200,100,100];
+    var coco = [100,80,70,110,80,40,80,10,60,20,50,140];
+    var dog = [30,50,90,110,130,60,80,80,160,120,150,40];
+    var totalArray = [dollars,areas,coco,dog];
+    var grid = d3.range(25).map(function(i){
+        return {'x1':0,'y1':0,'x2':0,'y2':900};
+    });
+
+    var tickVals = grid.map(function(d,i){
+        if(i>0){ return i*10; }
+        else if(i===0){ return "100";}
+    });
+
+    var xscale = d3.scale.linear()
+        .domain([50,400])
+        .range([10,90]);
+
+    var yscale = d3.scale.linear()
+        .domain([0,categories.length])
+        .range([0,900]);
+
+    var canvas = d3.select('#wrapper')
+        .append('svg')
+        .attr({'width':1500,'height':950});
+
+    var grids = canvas.append('g')
+        .attr('id','grid')
+        .attr('transform','translate(150,10)')
+        .selectAll('line')
+        .data(grid)
+        .enter()
+        .append('line')
+        .attr({'x1':function(d,i){ return i*100; },
+            'y1':function(d){ return d.y1; },
+            'x2':function(d,i){ return i*100; },
+            'y2':function(d){ return 900; },
+        })
+        .style({'stroke':'#adadad','stroke-width':'1px'});
+
+    var	xAxis = d3.svg.axis();
+    xAxis
+        .orient('bottom');
+
+
+
+    var	yAxis = d3.svg.axis();
+    yAxis
+        .orient('left')
+        .scale(yscale)
+        .tickSize(2)
+        .tickFormat(function(d,i){ return categories[i]; });
+
+
+    var y_xis = canvas.append('g')
+        .attr("transform", "translate(150,0)")
+        .attr('id','yaxis')
+        .call(yAxis);
+
+    var x_xis = canvas.append('g')
+        .attr("transform", "translate(150,480)")
+        .attr('id','xaxis')
+        .call(xAxis);
+    var chartArray = new Array(totalArray.length);
+    var transitArray = new Array(totalArray.length);
+    for (var i =0;i<totalArray.length;i++){
+        var color = colarArray[i]
+        chartArray[i] = canvas.append('g')
+            .attr("transform", "translate(150,0)")
+            .attr('id','bar'+i)
+            .selectAll('rect')
+            .data(totalArray[i])
+            .enter()
+            .append('rect')
+            .attr('height',50)
+            .attr({'x':100*i,'y':function(d,i){ return yscale(i)+50-xscale(d)/2; }})
+            .style('fill',function(d,i){ return color; })
+            .attr('width',function(d){ return 0; });
+
+
+        transitArray[i] = d3.select("#bar"+i).selectAll("rect")
+            .data(totalArray[i])
+            // .transition()
+            //.duration(3000)
+            .attr("height",function(d){return xscale(d)})
+            .attr("width", function(d) {return 100; });
+
+        var transitext = d3.select('#bar'+i)
+            .selectAll('text')
+            .data(totalArray[i])
+            .enter()
+            .append('text')
+            .attr({'x':function(d) {return xscale(d)+100*i; },'y':function(d,i){ return yscale(i)+50; }})
+            .text(function(d){ return d; }).style({'fill':'#fff','font-size':'11px'});
+
+    }
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
